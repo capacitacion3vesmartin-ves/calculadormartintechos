@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculador de Techos</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%234527a0%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%237e57c2%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27url%28%23g%29%27%2F%3E%3Ctext%20x%3D%2732%27%20y%3D%2747%27%20text-anchor%3D%27middle%27%20font-family%3D%27Arial%2CHelvetica%2Csans-serif%27%20font-weight%3D%27900%27%20font-size%3D%2742%27%20fill%3D%27%23ffffff%27%3ET%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ece9f6;--card:#fff;--ink:#241a45;--mut:#6a6385;--soft:#f3effb;--line:#d6cfe8;--pri:#5e35b1;--cy:#0097a7;--org:#f07f0a;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17132a;--card:#241d44;--ink:#efeafc;--mut:#b3aad4;--soft:#2e2656;--line:#43397a;--pri:#9575e0}}
+:root[data-theme="dark"]{--bg:#17132a;--card:#241d44;--ink:#efeafc;--mut:#b3aad4;--soft:#2e2656;--line:#43397a;--pri:#9575e0}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Roboto',Arial,sans-serif}
+body{background:var(--bg);color:var(--ink);min-height:100vh;padding:10px 10px 24px}
+.hidden{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.hero{background:linear-gradient(135deg,#4527a0,#7e57c2);color:#fff;border-radius:14px;padding:10px 14px;text-align:center;box-shadow:0 6px 18px rgba(69,39,160,.3)}
+.hero{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.hero .ht{grid-column:2;grid-row:1;min-width:0}
+.hb{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;line-height:1;color:#fff;text-decoration:none;white-space:nowrap;border-radius:999px;padding:8px 13px;cursor:pointer}
+.hb.back{grid-column:1;grid-row:1;justify-self:start;background:rgba(255,255,255,.18);border:1.5px solid #fff}
+.hb.back:hover{background:rgba(255,255,255,.3)}
+.hb.nuevo{grid-column:3;grid-row:1;justify-self:end;background:#f07f0a;border:1.5px solid #fff;font-family:inherit;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.hb.nuevo:hover{background:#ff8f1f}
+.hb svg{width:17px;height:17px;flex:none}
+@media(max-width:760px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.hero .ht{grid-column:1/-1;grid-row:2;width:100%}.hb.nuevo{grid-column:2}}
+.hero h1{font-size:clamp(18px,4.6vw,26px);font-weight:900;text-transform:uppercase;line-height:1.1}
+.hero .sub{font-size:11px;font-style:italic;opacity:.85;margin-top:3px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;max-width:560px;width:100%;margin:0 auto}
+@media(min-width:900px){.grid{max-width:1180px;grid-template-columns:minmax(360px,460px) minmax(0,1fr);align-items:start}.inp{grid-column:1;grid-row:1}.res{grid-column:1;grid-row:2}.dr{grid-column:2;grid-row:1/span 2;position:sticky;top:10px}.dv svg{max-height:80vh}}
+.card{background:var(--card);border-radius:14px;box-shadow:0 4px 16px rgba(36,26,69,.14);padding:12px;display:flex;flex-direction:column;gap:8px}
+.st{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
+.pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:center}
+.pic{position:relative;width:76px;height:76px;border:2px solid var(--line);border-left:8px solid var(--line);border-radius:10px;overflow:hidden;background:var(--soft);display:grid;place-items:center}
+.pic svg{width:80%}.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sels{display:flex;flex-direction:column;gap:6px}
+.sb{width:100%;text-align:left;border:2px solid var(--pri);border-radius:10px;padding:9px 10px;font-size:14px;font-weight:700;background:var(--card);color:var(--ink);cursor:pointer}
+.sb.go{position:relative;overflow:hidden;background:var(--pri);color:#fff;font-size:16px;font-weight:900;text-align:center;padding:14px 10px;border:3px solid var(--org);box-shadow:0 0 0 3px rgba(240,127,10,.25),0 6px 14px rgba(94,53,177,.35)}
+.sb.go::after{content:"";position:absolute;top:0;bottom:0;left:0;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:translateX(-130%) skewX(-20deg);animation:shine 3.4s ease-in-out infinite;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.sb.go::after{animation:none;display:none}}
+.srow{display:flex;gap:6px;align-items:stretch}
+.srow #b-tipo{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb.chg{flex:none;width:auto;text-align:center;background:var(--soft);padding:9px 10px;font-size:12.5px;font-weight:800;white-space:nowrap}
+.dims{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fld{display:flex;flex-direction:column;gap:3px}.fld label{font-size:12px;font-weight:700}
+.iw{display:flex;align-items:center;border:2px solid var(--pri);border-radius:10px;background:var(--card)}
+.iw.err{border-color:#d11;background:#fdeaea}.iw.err input{color:#a00}
+.iw input{width:100%;min-width:0;border:none;background:transparent;color:var(--ink);padding:7px 4px 7px 10px;font-size:20px;font-weight:700;outline:none}
+.iw span{padding:0 10px 0 4px;font-weight:800;color:var(--pri)}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tg3{grid-template-columns:repeat(3,1fr)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.r2>div{display:flex;flex-direction:column;gap:3px}
+.bt{padding:7px 4px;border:2px solid var(--line);background:var(--soft);color:var(--ink);font-weight:700;font-size:12.5px;border-radius:9px;cursor:pointer}
+.bt.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.msg{background:#fdeaea;color:#a00;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700}
+.res{border:3px solid var(--pri)}
+.fx{background:var(--soft);border-left:4px solid var(--pri);border-radius:6px;padding:6px 10px;font-size:12.5px;line-height:1.35}
+.fx .a{color:var(--cy);font-weight:900}.fx .l{color:#d86a00;font-weight:900}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.main{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:10px;background:linear-gradient(135deg,#006b09,#0aa33f);color:#fff;border-radius:12px;padding:6px 14px;box-shadow:0 6px 16px rgba(0,110,20,.3)}
+.main::after{content:"";position:absolute;top:0;bottom:0;left:0;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-130%) skewX(-20deg);animation:shine 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes shine{0%{transform:translateX(-130%) skewX(-20deg)}55%,100%{transform:translateX(380%) skewX(-20deg)}}
+@media(prefers-reduced-motion:reduce){.main::after{animation:none;display:none}}
+.main .rl{font-size:15px;font-weight:800;text-transform:uppercase}.main span{font-size:clamp(32px,8vw,42px);font-weight:900}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.box{border:2.5px solid var(--pri);background:var(--soft);border-radius:12px;padding:6px 9px}
+.box .rl{font-size:10.5px;font-weight:800;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between;align-items:center;gap:4px;min-height:20px}
+.box span.v{font-size:26px;font-weight:900;color:var(--pri)}.box small{font-size:12px;font-weight:800;color:var(--mut)}
+.mini{display:flex;gap:3px}.mini button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;font-size:11px;font-weight:800;padding:2px 6px;cursor:pointer}.mini button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.notice{display:flex;border-radius:9px;overflow:hidden;background:#fff6d1;border:1.5px solid #e0b400}
+.notice .sp{flex:none;width:12px;background:repeating-linear-gradient(-45deg,#1f1f1f 0 8px,#ffd400 8px 16px)}
+.notice p{padding:5px 9px;font-size:11px;font-weight:700;color:#4a3b00;line-height:1.3}.notice b{color:#7a1f00;letter-spacing:.8px;margin-right:4px}
+.pt{font-size:18px;font-weight:900;text-transform:uppercase}
+.dv{background:#f1f4f6;border-radius:12px;padding:6px;min-height:160px;display:flex;align-items:center;justify-content:center;color:#241a45}
+.dv svg{width:100%;height:auto;max-height:64vh}
+.empty{font-size:15px;font-weight:700;color:#6b7780;text-align:center;padding:30px 14px;line-height:1.4}
+.di{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{background:var(--soft);border:2px solid var(--pri);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:800}
+.lg{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700}.lg i{width:16px;height:10px;border-radius:2px}
+/* sección: cómo se calcula */
+.how{width:100%;max-width:1180px;margin:0 auto}
+@media(max-width:899px){.how{max-width:560px}}
+.how .sub2{font-size:12.5px;color:var(--mut);font-weight:700;line-height:1.35}
+.hw-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px}
+.hw-c{background:var(--soft);border-left:4px solid var(--pri);border-radius:8px;padding:9px 11px;font-size:13px;line-height:1.45;display:flex;flex-direction:column;gap:5px}
+.hw-c h3{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:900;text-transform:uppercase;line-height:1.2}
+.hw-c h3 i{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--pri);color:#fff;font-style:normal;font-size:12px}
+.hw-c .eq{background:var(--card);border:1.5px solid var(--line);border-radius:7px;padding:5px 8px;font-weight:800;font-size:12.5px}
+.hw-c .eq .a{color:var(--cy)}.hw-c .eq .l{color:#d86a00}
+.hw-c .ej{font-size:12.5px;color:var(--mut);font-weight:700}
+.hw-c .ej b{color:var(--pri)}
+.how{padding:0;gap:0}
+.how summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px}
+.how summary::-webkit-details-marker{display:none}
+.how .stt{display:flex;flex-direction:column;gap:2px}
+.how .stt small{font-size:12px;font-weight:700;color:var(--mut)}
+.how .chev{margin-left:auto;flex:none;width:30px;height:30px;border-radius:50%;background:var(--pri);color:#fff;display:grid;place-items:center;font-size:15px;transition:transform .2s}
+.how details[open]>summary .chev{transform:rotate(180deg)}
+.how details[open]>summary{border-bottom:2px solid var(--line);border-radius:12px 12px 0 0}
+.how .hw-body{padding:12px;display:flex;flex-direction:column;gap:8px}
+.simfr{width:100%;height:760px;border:0;border-radius:12px;background:var(--soft)}
+.how .st{margin-top:6px}
+/* ventana emergente */
+.md{position:fixed;inset:0;background:rgba(20,10,50,.6);display:flex;align-items:center;justify-content:center;padding:12px;z-index:50}
+.mbox{background:var(--card);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.mh{display:flex;align-items:center;gap:8px}.mh b{flex:1;font-size:17px;font-weight:900;text-transform:uppercase}
+.mx{border:none;background:var(--soft);color:var(--ink);border-radius:50%;width:34px;height:34px;font-size:18px;font-weight:900;cursor:pointer}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.tcard{border:2px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:5px;align-items:stretch;font-size:11.5px;text-align:center}
+.tcard:hover{border-color:var(--pri)}
+.th{position:relative;height:78px;border-radius:8px;overflow:hidden;background:var(--card);display:grid;place-items:center}
+.th svg{width:70%}.th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.th.plus{font-size:34px;font-weight:900;color:var(--pri)}
+.tcard.oth{border-style:dashed}
+.flist{display:flex;flex-direction:column;gap:8px}
+.frow{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:8px 12px;cursor:pointer;text-align:left}
+.frow i{display:block;width:34px;border-radius:3px;background:var(--c);flex:none}
+.frow b{font-size:16px;display:block}.frow small{font-size:12px;color:var(--mut);font-weight:700}
+.frow:hover{border-color:var(--c,var(--pri))}.frow.oth{border-style:dashed}
+.cf{display:flex;flex-direction:column;gap:10px}
+.go{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:900;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hero">
+  <a class="hb back" href="https://capacitacion3vesmartin-ves.github.io/campuscapacitacion/" target="_top">‹ Volver al Campus</a>
+  <div class="ht"><h1>Calculador de techos</h1><div class="sub">By: Capacitación V.E.S.</div></div>
+  <button type="button" class="hb nuevo" id="b-new" onclick="nuevo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20.5 3.5v4.2h-4.2"/><path d="M12 9v6M9 12h6"/></svg>Nuevo cálculo</button>
+</div>
+<div class="grid">
+
+<section class="card inp">
+  <div class="pick">
+    <div class="pic" id="pic"></div>
+    <div class="sels">
+      <div class="srow"><button type="button" class="sb go" id="b-tipo" onclick="openM('t')">Elegir techo ›</button><button type="button" class="sb chg hidden" id="b-chg" onclick="openM('t')" title="Cambiar de techo">⇄ Cambiar</button></div>
+      <button type="button" class="sb hidden" id="b-fmt" onclick="openM('f')"></button>
+    </div>
+  </div>
+  <div class="tg"><button type="button" class="bt on" id="m-med" onclick="setMode('med')">Ancho × largo</button><button type="button" class="bt" id="m-m2" onclick="setMode('m2')">Solo m²</button></div>
+  <div class="dims" id="d-med">
+    <div class="fld"><label for="a">Ancho</label><div class="iw" id="wa"><input type="number" id="a" step="0.01" min="0" placeholder="0.00" inputmode="decimal" onfocus="this.select()" oninput="calc()"><span>m</span></div></div>
+    <div class="fld"><label for="l">Largo</label><div class="iw" id="wl"><input type="number" id="l" step="0.01" min="0" placeholder="0.00" inputmode="decimal" onfocus="this.select()" oninput="calc()"><span>m</span></div></div>
+  </div>
+  <div class="fld hidden" id="d-m2"><label for="m">Espacio a cubrir</label><div class="iw"><input type="number" id="m" step="0.01" min="0" placeholder="0.00" inputmode="decimal" onfocus="this.select()" oninput="calc()"><span>m²</span></div></div>
+  <div class="msg hidden" id="bad">El ancho siempre es la medida más corta. Cambia los valores.</div>
+  <div class="r2">
+    <div><div class="st">El agua cae</div><div class="tg"><button type="button" class="bt on" id="s-ancho" onclick="setSl('ancho')">Ancho ↓</button><button type="button" class="bt" id="s-largo" onclick="setSl('largo')">Largo ←</button></div></div>
+    <div id="w-ag" class="hidden"><div class="st">El techo es a</div><div class="tg"><button type="button" class="bt on" id="g-1" onclick="setAg(1)">1 agua</button><button type="button" class="bt" id="g-2" onclick="setAg(2)">2 aguas</button></div></div>
+  </div>
+</section>
+
+<section class="card res">
+  <div class="fx" id="fx">Elige un techo.</div>
+  <div class="main"><div class="rl">Planchas:</div><span id="n">0</span></div>
+  <div class="tg tg3">
+    <button type="button" class="bt on" id="r-real" onclick="setRd('real')">Ver real</button>
+    <button type="button" class="bt" id="r-up" onclick="setRd('up')">Redondear ↑</button>
+    <button type="button" class="bt" id="r-down" onclick="setRd('down')">Redondear ↓</button>
+  </div>
+  <div class="rg">
+    <div class="box"><div class="rl">Tornillos</div><span class="v" id="tor">0</span> <small>cientos</small></div>
+    <div class="box"><div class="rl">Capuchones</div><span class="v" id="cap">0</span> <small>cientos</small></div>
+    <div class="box"><div class="rl">Canaletas<div class="mini"><button type="button" class="on" id="c3" onclick="setCs(3)">3 m</button><button type="button" id="c6" onclick="setCs(6)">6 m</button></div></div><span class="v" id="can">0</span> <small id="cu">unidades</small></div>
+    <div class="box"><div class="rl">Abrazaderas</div><span class="v" id="abz">0</span> <small>paquetes de 6</small></div>
+  </div>
+</section>
+
+<aside class="card dr" id="dr">
+  <div class="notice"><div class="sp"></div><p><b>IMPORTANTE</b>El cálculo de materiales es aproximado. Siempre hay posibilidad que pueda sobrar o faltar material.</p><div class="sp"></div></div>
+  <div class="pt">Así quedaría instalado</div>
+  <div class="dv" id="dv"></div>
+  <div class="di" id="di"></div>
+</aside>
+
+</div>
+
+<section class="card how" id="como-s">
+<details id="como">
+<summary><span class="stt"><span class="pt">Cómo se calcula</span><small>Toca para ver el simulador paso a paso</small></span><span class="chev" aria-hidden="true">▾</span></summary>
+<div class="hw-body">
+  <iframe id="simfr" class="simfr" title="Simulador paso a paso del cálculo de techos"></iframe>
+  <div class="st">Para completar la cotización</div>
+  <div class="sub2">Ejemplo: techo de <b>4 m de ancho × 6 m de largo</b>, el agua cae por el ancho (1 agua).</div>
+  <div class="hw-g">
+    <div class="hw-c"><h3><i>5</i>Canaletas</h3>
+      <p>Van en el borde por donde cae el agua. Se mide ese borde, se multiplica por el número de aguas y se divide entre el largo de la canaleta (3 m o 6 m).</p>
+      <div class="eq">borde × aguas ÷ largo de canaleta</div>
+      <div class="ej">Si el agua cae por el ancho, el borde es el largo: 6 × 1 ÷ 3 = <b>2 canaletas de 3 m</b></div></div>
+    <div class="hw-c"><h3><i>6</i>Abrazaderas</h3>
+      <p>Una cada <b>50 cm</b> del borde de la canaleta, más una extra al final. Vienen en paquetes de 6.</p>
+      <div class="eq">aguas × (⌈borde ÷ 0.5⌉ + 1) ÷ 6</div>
+      <div class="ej">⌈6 ÷ 0.5⌉ + 1 = 13 abrazaderas ÷ 6 = 2.17 → <b>3 paquetes</b></div></div>
+    <div class="hw-c"><h3><i>7</i>Casos especiales</h3>
+      <p><b>Redondeo:</b> «Ver real» muestra el decimal, «Redondear ↑» sube al entero (lo que se compra) y «Redondear ↓» lo baja.</p>
+      <p><b>Solo m²:</b> no se conocen las medidas, así que se supone un techo 1.5 veces más largo que ancho. Por eso canaletas y abrazaderas salen con «~» (aproximado).</p>
+      <p><b>Tejas a 2 aguas:</b> hay una caída a cada lado, así que se duplican canaletas y abrazaderas.</p>
+      <p><b>Otro formato:</b> escribes ancho y largo de la plancha y se aplica el paso 1.</p></div>
+  </div>
+</div>
+</details>
+</section>
+<template id="simT"><style>
+:root{--bg:#F5F8F4;--card:#fff;--ink:#1E2A24;--mut:#5D6B63;--or:#E8701A;--gr:#2E9E5B;--bl:#2B7BD1;--pu:#8E4FD0;--ln:#DCE5DE;--soft:#E7F0E9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13201A;--card:#1B2A22;--ink:#EAF1EC;--mut:#9DB0A4;--ln:#2C4036;--soft:#223329;--bl:#5AA2EE;--pu:#B58AF0}}
+:root[data-theme="dark"]{--bg:#13201A;--card:#1B2A22;--ink:#EAF1EC;--mut:#9DB0A4;--ln:#2C4036;--soft:#223329;--bl:#5AA2EE;--pu:#B58AF0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.35 "Plus Jakarta Sans",system-ui,sans-serif}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:18px;align-items:start}
+.right .sep{margin-top:20px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.right .sep{margin-top:16px}}
+main{max-width:1120px;margin:0 auto;padding:14px 14px 36px}
+h1{font-size:clamp(20px,4.5vw,26px);line-height:1.1;margin:0 0 10px;font-weight:800;letter-spacing:-.02em}
+button,input{font:inherit;color:inherit}
+.fmt{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-bottom:10px}
+.fmt label{display:flex;flex-direction:column;font-weight:800;font-size:12px;gap:2px}
+.fmt input{width:92px;font-size:17px;font-weight:800;border:2.5px solid;background:var(--card);border-radius:10px;padding:4px 9px}
+#iw{border-color:var(--bl)}#il{border-color:var(--pu)}.cw{color:var(--bl)}.cl{color:var(--pu)}
+.fmt .x{font-size:17px;font-weight:800;padding-bottom:7px}
+.dots{display:flex;gap:7px;padding-bottom:7px;margin-left:auto}
+.dots button{width:24px;height:24px;border-radius:50%;border:3px solid transparent;cursor:pointer}
+.dots button[aria-pressed=true]{border-color:var(--ink)}
+.tool{border:1.5px solid var(--ln);background:var(--card);border-radius:999px;cursor:pointer;font-weight:600}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+#stage{position:relative;height:460px;background:var(--soft);border-radius:18px;overflow:hidden;perspective:1500px;touch-action:pan-y;cursor:grab;user-select:none}
+#stage:active{cursor:grabbing}
+#sc{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;transform:translate(var(--px),var(--py)) scale(var(--z)) rotateX(var(--rx)) rotateZ(var(--rz))}
+#sc>div{position:absolute}
+.sh{background:repeating-linear-gradient(90deg,rgba(255,255,255,.32) 0,rgba(0,0,0,.2) 4px,rgba(255,255,255,.32) 8px),var(--c);box-shadow:0 0 0 1px rgba(0,0,0,.4),3px 5px 9px rgba(0,0,0,.25);border-radius:2px}
+.ht{background:repeating-linear-gradient(45deg,rgba(255,255,255,.8) 0 4px,var(--or) 4px 8px)}
+.ut{border:3px dashed var(--gr);background:rgba(46,158,91,.3);pointer-events:none}
+.bw{background:var(--bl)}.bl{background:var(--pu)}
+#sc>.pb{width:0;height:0;transform:translateZ(30px) rotateZ(calc(var(--rz)*-1)) rotateX(calc(var(--rx)*-1)) scale(calc(1/var(--z)))}
+.pb span{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;color:#fff;font-weight:800;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--or)}
+.pb.w span{background:var(--bl)}.pb.l span{background:var(--pu)}.pb.u span{background:var(--gr)}
+.tools{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.tools .tool{padding:0;width:34px;height:34px;font-size:15px}
+.ctl{display:grid;grid-template-columns:68px 1fr 70px;align-items:center;gap:8px;margin-top:8px;font-weight:800}
+.ctl output{font-variant-numeric:tabular-nums;font-weight:800;color:var(--or);font-size:13px}
+input[type=range]{width:100%;height:28px}
+#vs{accent-color:var(--bl)}#vt{accent-color:var(--pu)}
+.ent{margin-top:10px;background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px}
+.eqs{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lb{width:84px;font-weight:800}
+.n{border-radius:10px;padding:4px 10px;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;border:2.5px solid;background:var(--card)}
+.n.b{border-color:var(--bl);color:var(--bl)}.n.o{border-color:var(--or);color:var(--or)}
+.n.bs{background:var(--bl);border-color:var(--bl);color:#fff}.n.ps{background:var(--pu);border-color:var(--pu);color:#fff}
+.n.g{background:var(--gr);border-color:var(--gr);color:#fff;font-size:21px}
+.k .lb{color:var(--ink)}.k .n{border-color:var(--ink);color:var(--ink)}.k .cin{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.cin label{display:flex;flex-direction:column;font-weight:800;font-size:12px;gap:2px}
+.cin input{width:84px;font-size:16px;font-weight:800;border:2.5px solid var(--ink);background:var(--card);border-radius:10px;padding:4px 8px}
+.x2{padding-bottom:7px;font-weight:800;color:var(--mut)}
+.cin+.eqs{margin-top:14px}
+.n.go{border-color:var(--gr);color:var(--gr)}.n.big{font-size:21px}.fin{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.op{color:var(--ink)}.k .n.fin{background:var(--ink);color:var(--bg)}
+.op{font-size:18px;font-weight:800;color:var(--mut)}
+.sep{display:flex;align-items:center;gap:10px;margin:16px 0 4px;font-weight:800;font-size:16px}
+.sep:before,.sep:after{content:"";flex:1;height:2px;background:var(--ln)}
+@media(max-width:560px){.ctl{grid-template-columns:58px 1fr 62px}#stage{height:420px}.dots{margin-left:0}}
+.back{display:inline-block;padding:5px 12px;border:1.5px solid var(--gr);border-radius:999px;color:var(--gr);font-weight:800;text-decoration:none;background:var(--card);font-size:13px}
+:root{padding-top:0;padding-bottom:0}
+.top,.bot{position:fixed;left:0;right:0;z-index:20;background:var(--card)}
+.top{top:0;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;box-shadow:0 3px 10px rgba(0,0,0,.14)}
+.bot{bottom:0;display:flex;gap:10px;justify-content:space-between;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px);box-shadow:0 -3px 10px rgba(0,0,0,.14)}
+.tr{display:flex;align-items:center;gap:10px;max-width:1120px;margin:0 auto 7px}.tt{font-weight:800;font-size:15px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:1120px;margin:0 auto}
+.steps button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border:2px solid var(--ln);background:var(--card);border-radius:12px;cursor:pointer;font-size:11px}
+.steps i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--ln);display:grid;place-items:center;font-weight:800;font-size:11px}
+.steps b{font-size:9px;color:var(--mut)}.steps span{font-weight:800}
+.steps .on{border-color:var(--gr)}.steps .on i,.steps .ok i{background:var(--gr);color:#fff}
+.say{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:10px 14px;margin:0 0 12px;font-weight:600;font-size:15px;line-height:1.45}
+h2{margin:0 0 8px;font-size:18px;font-weight:800}
+.hint{font-weight:800;color:var(--or);margin-top:12px}.right .hint+.ctl{margin-top:2px}
+.pn[hidden]{display:none}.pn .ent+.ent{margin-top:12px}.pn .ent:first-child{margin-top:0}
+.note{color:var(--mut);font-weight:600;font-size:13px;margin-top:10px;text-align:center}
+.tb{display:grid;grid-template-columns:52px 1fr 14px 1fr 14px 1fr;gap:6px 4px;align-items:center;text-align:center}
+.tb .h{font-size:10px;font-weight:800;color:var(--mut);line-height:1.1}.tb .hr{color:var(--gr)}
+.tb .lb{width:auto;text-align:left;font-size:13px}
+.tg{border:2.5px solid var(--k);color:var(--k);background:var(--card);border-radius:10px;padding:3px 4px;min-height:38px;font-weight:800;font-size:17px;cursor:pointer}
+.tg .t{display:none;font-size:10px;line-height:1.1}.tg.alt .v{display:none}.tg.alt .t{display:block}
+.tb .res{background:var(--gr);border-color:var(--gr);color:#fff;box-shadow:0 0 0 4px rgba(46,158,91,.22)}
+.say2{margin:14px 0 8px;font-weight:600;line-height:1.4}
+.line{display:flex;align-items:flex-end;gap:5px;justify-content:center}
+.line .op{padding-bottom:8px}
+.cap{flex:1;min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:3px;font-size:11px;font-weight:800;color:var(--mut);text-align:center}
+.cap .n{text-align:center;font-size:15px;padding:4px 2px;white-space:normal}.cap .big,.cap .g{font-size:16px}
+.line input{width:100%;min-width:0;font-size:17px;font-weight:800;text-align:center;border:2.5px solid var(--ink);background:var(--card);border-radius:10px;padding:4px}
+#rc{position:relative;margin:14px auto 0;height:0;min-width:40px}
+#rc.on{background:var(--soft);border:2.5px solid var(--gr);border-radius:6px}
+#rc span{position:absolute;font-weight:800;font-size:12px;color:var(--gr);white-space:nowrap}
+#rl{left:50%;top:-20px;transform:translateX(-50%)}#rw{right:-6px;top:50%;transform:translate(100%,-50%)}
+.alt2{margin-top:18px;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.alt2 input{width:90px;font-size:16px;font-weight:800;border:2.5px solid var(--ink);background:var(--card);border-radius:10px;padding:4px 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.chips span{background:var(--soft);border:1.5px solid var(--gr);border-radius:999px;padding:5px 12px;font-weight:800}
+.nb{flex:1;max-width:260px;border:0;border-radius:14px;padding:12px 18px;font-weight:800;cursor:pointer;font-size:15px}
+.pv{background:#FFE0C9;color:#B5500F}.nx{background:var(--gr);color:#fff}.nb:disabled{opacity:.4;cursor:default}
+
+:root{--or:#F07F0A;--gr:#0A8F3F}
+.top{background:linear-gradient(135deg,#0B6B35,#07522A);box-shadow:0 4px 12px rgba(0,0,0,.28)}
+.tt{color:#fff}
+.back{background:#fff;border-color:#fff;color:#0A6B35}
+.steps{gap:16px}
+.steps button{position:relative;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18);color:#fff}
+.steps button:not(:last-child)::after{content:"›";position:absolute;right:-13px;top:50%;transform:translateY(-50%);width:10px;text-align:center;color:rgba(255,255,255,.75);font-size:20px;font-weight:800;line-height:1}
+.steps b{color:rgba(255,255,255,.7)}
+.steps i{background:rgba(255,255,255,.25);color:#fff}
+.steps .ok i{background:#8BE3A8;color:#064B24}
+.steps .on{background:#fff;border-color:var(--or);color:#0A6B35}
+.steps .on b{color:var(--or)}.steps .on i{background:var(--or);color:#fff}
+
+.rec{margin-top:14px;display:flex;gap:12px;align-items:center;padding:14px;border-radius:16px;background:linear-gradient(135deg,#FFF3D6,#FFE2A8);border:2.5px solid var(--or);color:#4A2C00;font-weight:600;line-height:1.4;box-shadow:0 0 0 4px rgba(240,127,10,.18),0 6px 18px rgba(240,127,10,.3)}
+.rec b{color:#C25A00;font-weight:800;font-size:15px}
+.bulb{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:28px;background:#fff;animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 6px 2px rgba(255,200,40,.5)}50%{box-shadow:0 0 20px 8px rgba(255,200,40,.95)}}
+@media(prefers-reduced-motion:reduce){.bulb{animation:none;box-shadow:0 0 14px 5px rgba(255,200,40,.8)}}
+
+/* adaptación al calculador */
+:root{--bg:#ece9f6;--card:#fff;--ink:#241a45;--mut:#6a6385;--ln:#d6cfe8;--soft:#f3effb;--or:#f07f0a;--gr:#0a8f3f;--bl:#0097a7;--pu:#7e57c2;--pri:#5e35b1}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17132a;--card:#241d44;--ink:#efeafc;--mut:#b3aad4;--ln:#43397a;--soft:#2e2656;--bl:#2fc4d6;--pu:#a68be8;--pri:#9575e0}}
+:root[data-theme="dark"]{--bg:#17132a;--card:#241d44;--ink:#efeafc;--mut:#b3aad4;--ln:#43397a;--soft:#2e2656;--bl:#2fc4d6;--pu:#a68be8;--pri:#9575e0}
+body{font-family:'Roboto',Arial,sans-serif;background:var(--bg)}
+.top,.bot{position:static}
+.top{background:linear-gradient(135deg,#4527a0,#7e57c2);padding:10px 12px;box-shadow:none}
+.bot{background:var(--card);border-top:2px solid var(--ln);box-shadow:none;padding:10px 12px}
+main{padding:12px 12px 14px}
+.tt{color:#fff}
+.steps .on{color:#4527a0}
+.nx{background:var(--pri)}
+</style>
+<header class="top" id="top">
+<div class="tr"><span class="tt">Simulador paso a paso</span></div>
+<nav class="steps" id="steps">
+<button data-i="0"><i>1</i><b>PASO 1</b><span>Rendimiento</span></button>
+<button data-i="1"><i>2</i><b>PASO 2</b><span>Área</span></button>
+<button data-i="2"><i>3</i><b>PASO 3</b><span>Techos</span></button>
+<button data-i="3"><i>4</i><b>PASO 4</b><span>Tornillos</span></button>
+</nav></header>
+<main id="mn">
+<p class="say" id="say"></p>
+<section class="pn" id="p1"><div class="wrap"><div class="left">
+<h2>Coloca el formato del techo</h2>
+<div class="fmt">
+  <label class="cw">Ancho (m)<input type="text" id="iw" inputmode="decimal" value="1.10"></label>
+  <span class="x">×</span>
+  <label class="cl">Largo (m)<input type="text" id="il" inputmode="decimal" value="3.05"></label>
+  <div class="dots" id="dots" role="group" aria-label="Color de la plancha"></div>
+</div>
+<div id="stage"><div id="sc"></div>
+  <div class="tools">
+    <button class="tool" id="zi" aria-label="Acercar">+</button>
+    <button class="tool" id="zo" aria-label="Alejar">−</button>
+    <button class="tool" id="vu" aria-label="Ver desde más arriba">▲</button>
+    <button class="tool" id="vd" aria-label="Ver desde más abajo">▼</button>
+    <button class="tool" id="vl" aria-label="Girar a la izquierda">◀</button>
+    <button class="tool" id="vr" aria-label="Girar a la derecha">▶</button>
+    <button class="tool" id="rs" aria-label="Centrar la vista">⌖</button>
+  </div></div></div>
+<div class="right">
+<div class="hint">👆 Mueve las barras para simular los traslapes</div>
+<div class="ctl cw"><span>Costado</span><input type="range" id="vs" min="0" max="100" value="0" aria-label="Plancha del costado, hasta 10 cm"><output id="os"></output></div>
+<div class="ctl cl"><span>Arriba</span><input type="range" id="vt" min="0" max="100" value="0" aria-label="Plancha de arriba, hasta 20 cm"><output id="ot"></output></div>
+<div class="sep">Entonces:</div>
+<div class="ent">
+<div class="tb">
+<span></span><span class="h">Medida real</span><span></span><span class="h">Traslape</span><span></span><span class="h hr">Medida útil</span>
+<span class="lb cw">Ancho</span><button class="tg" style="--k:var(--bl)"><span class="v" id="e1"></span><span class="t">Ancho real del techo</span></button><span class="op">−</span><button class="tg" style="--k:var(--or)"><span class="v">0.10</span><span class="t">Traslape</span></button><span class="op">=</span><span class="n fin res" id="e2"></span>
+<span class="lb cl">Largo</span><button class="tg" style="--k:var(--pu)"><span class="v" id="e3"></span><span class="t">Largo real del techo</span></button><span class="op">−</span><button class="tg" style="--k:var(--or)"><span class="v">0.20</span><span class="t">Traslape</span></button><span class="op">=</span><span class="n fin res" id="e4"></span>
+</div>
+<div class="say2">Ahora que tenemos la medida útil, <b>multiplicamos el ancho útil por el largo útil</b> para hallar el rendimiento de la plancha:</div>
+<div class="line">
+<div class="cap">Ancho útil<span class="n bs" id="e5"></span></div><span class="op">×</span>
+<div class="cap">Largo útil<span class="n ps" id="e6"></span></div><span class="op">=</span>
+<div class="cap">Rendimiento<span class="n g" id="e7"></span></div>
+</div></div></div></div></section>
+<section class="pn" id="p2" hidden><div class="ent">
+<div class="line">
+<div class="cap">Lado 1 (m)<input type="text" id="ka" inputmode="decimal" placeholder="0.00"></div><span class="op">×</span>
+<div class="cap">Lado 2 (m)<input type="text" id="kl" inputmode="decimal" placeholder="0.00"></div><span class="op">=</span>
+<div class="cap">Área del espacio<span class="n fin big" id="c1">—</span></div>
+</div>
+<div id="rc"><span id="rl"></span><span id="rw"></span></div>
+<div class="alt2">¿El cliente ya te dio los m²? <input type="text" id="km" inputmode="decimal" placeholder="m²"></div>
+</div></section>
+<section class="pn" id="p3" hidden><div class="ent">
+<div class="line">
+<div class="cap">Área del espacio<span class="n" id="c1b">—</span></div><span class="op">÷</span>
+<div class="cap">Rendimiento<span class="n go" id="c2"></span></div><span class="op">=</span>
+<div class="cap">Techos<span class="n fin big" id="c3">—</span></div>
+</div><div class="note" id="cx"></div></div></section>
+<section class="pn" id="p4" hidden><div class="ent">
+<div class="line">
+<div class="cap">Techos<span class="n" id="c4">—</span></div><span class="op">÷</span>
+<div class="cap">Techos por ciento<span class="n">10</span></div><span class="op">=</span>
+<div class="cap">Tornillos<span class="n fin big" id="c5">—</span></div>
+</div><div class="note">1 ciento de tornillos por cada 10 techos.</div></div>
+<div class="ent"><b>💡 Venta cruzada: sugiere también</b><div class="chips"><span>Canaletas</span><span>Abrazaderas</span><span>Espuma expansiva</span><span>Cumbreras</span><span>Y mucho más...</span></div></div>
+<div class="rec"><div class="bulb">💡</div><div><b>RECUERDA:</b> Debes indicar al cliente que el cálculo es aproximado. Siempre hay posibilidad que pueda faltar o sobrar material según instalación.</div></div></section>
+</main>
+<footer class="bot" id="bot"><button id="pv" class="nb pv">‹ ANTERIOR</button><button id="nx" class="nb nx">SIGUIENTE ›</button></footer>
+<script>try{const t=parent.document.documentElement.getAttribute('data-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}
+
+const C=['#C8502F','#7D8A96','#8B5E3C','#3C4650','#9C2F45'];
+const K=100,$=id=>document.getElementById(id),f=x=>x.toFixed(2),sc=$('sc'),st=$('stage');
+const s={w:1.10,l:3.05,c:C[0],vs:0,vt:0,rz:35,zm:1,px:0,py:0,rx:0};
+const mk=(c,t)=>{const d=document.createElement('div');d.className=c;if(t)d.innerHTML='<span></span>';sc.appendChild(d);return d};
+const A=mk('sh'),S=mk('sh'),T=mk('sh'),U=mk('ut'),HS=mk('ht'),HT=mk('ht'),
+ W0=mk('bw'),W1=mk('bw'),W2=mk('bw'),L0=mk('bl'),L1=mk('bl'),L2=mk('bl'),
+ PS=mk('pb',1),PT=mk('pb',1),PU=mk('pb u',1),PW=mk('pb w',1),PL=mk('pb l',1);
+const bx=(d,x,y,w,h,z,on=true)=>{d.style.display=on?'':'none';d.style.left=x*K+'px';d.style.top=y*K+'px';d.style.width=w*K+'px';d.style.height=h*K+'px';d.style.transform='translateZ('+z+'px)'};
+const pt=(d,x,y,t,on=true)=>{d.style.display=on?'':'none';d.style.left=x*K+'px';d.style.top=y*K+'px';d.firstChild.textContent=t};
+function fit(){const r=s.rz*Math.PI/180,c=Math.abs(Math.cos(r)),n=Math.abs(Math.sin(r)),gw=2*s.w+1,gh=2*s.l+1;
+  return Math.min(st.clientWidth*.92/((gw*c+gh*n)*K),st.clientHeight*.92/((gw*n+gh*c)*K))}
+function view(){sc.style.setProperty('--px',s.px+'px');sc.style.setProperty('--py',s.py+'px');sc.style.setProperty('--rz',s.rz+'deg');sc.style.setProperty('--rx',s.rx+'deg');sc.style.setProperty('--z',fit()*s.zm)}
+function draw(){
+  const{w,l}=s,fs=s.vs/100,ft=s.vt/100,gs=.5-fs*.6,gt=.5-ft*.7,
+  os=Math.max(0,-gs),ot=Math.max(0,-gt),cs=Math.round(os*100),ct=Math.round(ot*100),
+  ax=-(w+.25),ay=.25,re=(l-.2)*(w-.1),t=.045,by=ay+l+.14,lx=ax-.28;
+  sc.style.setProperty('--c',s.c);if(typeof cal=='function'&&typeof q!='undefined')cal();
+  bx(A,ax,ay,w,l,0);bx(S,ax+w+gs,ay,w,l,6);bx(T,ax,ay-l-gt,w,l,12);
+  const ok=cs==10&&ct==20;bx(U,ax,ay+.2,w-.1,l-.2,3,ok);
+  bx(HS,ax+w-os,ay,os,l,16,os>0);bx(HT,ax,ay,w,ot,17,ot>0);
+  bx(W0,ax,by,w,t,2);bx(W1,ax,by-.09,t,.22,2);bx(W2,ax+w-t,by-.09,t,.22,2);
+  bx(L0,lx,ay,t,l,2);bx(L1,lx-.09,ay,.22,t,2);bx(L2,lx-.09,ay+l-t,.22,t,2);
+  pt(PS,ax+w-os/2,ay+l*.75,cs+' cm',os>0);
+  pt(PT,ax+w/2,ay+ot/2,ct+' cm',ot>0);
+  pt(PU,ax+(w-.1)/2,ay+.2+(l-.2)/2,f(re)+' m²',ok);
+  pt(PW,ax+w/2,by+t/2,f(w)+' m');pt(PL,lx+t/2,ay+l/2,f(l)+' m');
+  $('os').textContent=cs+' / 10 cm'+(cs==10?' ✓':'');$('ot').textContent=ct+' / 20 cm'+(ct==20?' ✓':'');
+  $('e1').textContent=f(w);$('e2').textContent=f(w-.1);$('e3').textContent=f(l);$('e4').textContent=f(l-.2);
+  $('e5').textContent=f(w-.1);$('e6').textContent=f(l-.2);$('e7').textContent=f(re)+' m²';
+}
+$('dots').innerHTML=C.map((c,i)=>`<button style="background:${c}" data-c="${c}" aria-pressed="${i==0}" aria-label="Color ${i+1}"></button>`).join('');
+$('dots').onclick=e=>{const b=e.target.closest('button');if(!b)return;s.c=b.dataset.c;[...$('dots').children].forEach(x=>x.setAttribute('aria-pressed',x==b));draw()};
+const num=v=>parseFloat(String(v).replace(',','.'));
+$('iw').oninput=e=>{const v=num(e.target.value);if(v>=.3&&v<=3){s.w=v;s.zm=1;view();draw()}};
+$('il').oninput=e=>{const v=num(e.target.value);if(v>=.6&&v<=12){s.l=v;s.zm=1;view();draw()}};
+$('vs').oninput=e=>{s.vs=+e.target.value;draw()};
+$('vt').oninput=e=>{s.vt=+e.target.value;draw()};
+const zoom=k=>{s.zm=Math.min(4,Math.max(.4,s.zm*k));view()};
+$('zi').onclick=()=>zoom(1.25);$('zo').onclick=()=>zoom(.8);
+$('vu').onclick=()=>{s.rx=Math.max(0,s.rx-15);view()};$('vd').onclick=()=>{s.rx=Math.min(75,s.rx+15);view()};
+$('vl').onclick=()=>{s.rz-=15;view()};$('vr').onclick=()=>{s.rz+=15;view()};
+$('rs').onclick=()=>{s.px=s.py=0;s.zm=1;s.rx=0;s.rz=35;view()};
+const P=new Map();let d0=0;
+st.onpointerdown=e=>{if(e.target.closest('.tools'))return;st.setPointerCapture(e.pointerId);P.set(e.pointerId,e);if(P.size==2){const[a,b]=[...P.values()];d0=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}};
+st.onpointermove=e=>{
+  if(!P.has(e.pointerId))return;const o=P.get(e.pointerId);
+  if(P.size==1){s.px+=e.clientX-o.clientX;s.py+=e.clientY-o.clientY;P.set(e.pointerId,e);view()}
+  else{P.set(e.pointerId,e);const[a,b]=[...P.values()],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(d0)zoom(d/d0);d0=d}
+};
+st.onpointerup=st.onpointercancel=e=>{P.delete(e.pointerId);d0=0};
+st.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();zoom(Math.exp(-e.deltaY*.0015))},{passive:false});
+addEventListener('resize',view);
+const q={m:0},g=id=>num($(id).value);
+function cal(){
+  const re=(s.l-.2)*(s.w-.1),m=q.m,ex=m/re,n=m>0?Math.ceil(ex-1e-9):0,c=Math.ceil(n/10),pl=(k,a,b)=>k+(k==1?a:b);
+  $('c1').textContent=$('c1b').textContent=m>0?f(m)+' m²':'—';$('c2').textContent=f(re)+' m²';
+  $('c3').textContent=n?pl(n,' techo',' techos'):'—';$('cx').textContent=n?f(m)+' ÷ '+f(re)+' = '+f(ex)+' → redondeamos hacia arriba':'';
+  $('c4').textContent=n?pl(n,' techo',' techos'):'—';$('c5').textContent=n?pl(c,' ciento',' cientos'):'—';
+  const a=g('ka'),b=g('kl'),r=$('rc');
+  if(a>0&&b>0){const k=Math.min(200/a,110/b);r.className='on';r.style.width=a*k+'px';r.style.height=b*k+'px';$('rl').textContent=f(a)+' m';$('rw').textContent=f(b)+' m'}
+  else{r.className='';r.style.height='0';r.style.width='40px';$('rl').textContent=$('rw').textContent=''}
+}
+$('ka').oninput=$('kl').oninput=()=>{const a=g('ka'),b=g('kl');q.m=a>0&&b>0?a*b:0;$('km').value=q.m?f(q.m):'';cal()};
+$('km').oninput=()=>{const m=g('km');q.m=m>0?m:0;$('ka').value=$('kl').value='';cal()};
+view();draw();
+const TXT=['<b>Paso 1:</b> Hallar el rendimiento del techo. Primero descontamos 20 centímetros al largo y 10 centímetros al ancho. Una vez hecha la resta, multiplicamos los lados para obtener el rendimiento del techo en metros cuadrados.','<b>Paso 2:</b> Hallar el área del espacio. El cliente nos dará las medidas del lado 1 y del lado 2, y las multiplicamos para hallar el área del espacio en metros cuadrados.','<b>Paso 3:</b> Dividimos el área del espacio entre el rendimiento y nos da la cantidad de techos.','<b>Paso 4:</b> Finalmente consideramos 1 ciento de tornillos por cada 10 techos. Y podemos sugerir la venta cruzada de Canaletas, Abrazaderas, Espuma expansiva, etc.'];
+let cur=0,mx=0;
+function pad(){}
+function go(i){cur=Math.max(0,Math.min(3,i));mx=Math.max(mx,cur);
+ [0,1,2,3].forEach(k=>{$('p'+(k+1)).hidden=k!=cur;$('steps').children[k].className=k==cur?'on':(k<=mx?'ok':'')});
+ $('say').innerHTML=TXT[cur];$('pv').disabled=cur==0;$('nx').textContent=cur==3?'FINALIZAR ✓':'SIGUIENTE ›';
+ pad();if(cur==0)view();if(go.r)parent.postMessage({sim:'step'},'*')}
+$('steps').onclick=e=>{const b=e.target.closest('button');if(b)go(+b.dataset.i)};
+$('pv').onclick=()=>go(cur-1);
+$('nx').onclick=()=>{if(cur==3)parent.postMessage({sim:'close'},'*');else go(cur+1)};
+document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>{b.classList.toggle('alt');clearTimeout(b._t);if(b.classList.contains('alt'))b._t=setTimeout(()=>b.classList.remove('alt'),3500)});
+addEventListener('resize',pad);
+go(0);go.r=1;
+const rep=()=>parent.postMessage({sim:'h',h:document.body.getBoundingClientRect().height},'*');
+new ResizeObserver(rep).observe(document.body);rep();
+</script></template>
+
+</div>
+
+<div class="md hidden" id="md" onclick="if(event.target===this)closeM()">
+  <div class="mbox">
+    <div class="mh"><button type="button" class="mx hidden" id="mback" onclick="openM('t')">‹</button><b id="mt"></b><button type="button" class="mx" onclick="closeM()">✕</button></div>
+    <div id="mb"></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id),r6=x=>Math.round(x*1e6)/1e6,f2=x=>(Math.round(x*100)/100).toString();
+/* formato = [ancho, largo, color] · ancho = lado corto */
+const T=[
+{n:'CALAMINA',p:'wave',img:'https://www.image2url.com/r2/default/images/1790203748811-8e5b6316-cd36-406e-9ef9-81287a2677b9.jpg',f:[[.8,3.6,'#4f8fc0']]},
+{n:'ALUZINC TR4',p:'trap',img:'https://image2url.com/r2/default/images/1774473295386-38d7967e-c5e1-4e4d-a8cb-fd5bd921150a.jpg',f:[[1.05,3.66,'#7d8b99'],[1.05,6,'#2fb5a0']]},
+{n:'ETERNIT',p:'wave',img:'https://image2url.com/r2/default/images/1774473539846-f6c2082f-1b59-44e8-aab9-3dafd6e2f41a.jpg',f:[[1.1,1.83,'#b08968'],[1.1,3.05,'#8a5f3c']]},
+{n:'ETERNIT GRAN ONDA',p:'wave',img:'https://image2url.com/r2/default/images/1774473539846-f6c2082f-1b59-44e8-aab9-3dafd6e2f41a.jpg',f:[[1.1,1.83,'#d8b24c'],[1.1,2.44,'#b8892d'],[1.1,3.05,'#8c6a1c']]},
+{n:'POLIPROPILENO',p:'wave',img:'https://image2url.com/r2/default/images/1774474530722-d6724006-778d-47d4-8c5a-99d4f62e44c6.jpg',f:[[1,3.05,'#f2b632'],[.84,1.8,'#e9783f'],[.84,3.6,'#6fbf73'],[1.1,3.05,'#4fc3e8']]},
+{n:'TERMOACÚSTICO',p:'trapI',img:'https://image2url.com/r2/default/images/1774473961871-351013a0-6665-4e82-bf48-68a3ea1c51d4.jpg',f:[[1.07,3.6,'#d9534f'],[1.07,6,'#a23b72']]},
+{n:'TEJA ANDINA ETERNIT',p:'tile',img:'https://image2url.com/r2/default/images/1774474260344-3dcff8b6-a8c9-4062-bb8d-b3801a109df3.jpg',f:[[.72,1.14,'#e07b39']]},
+{n:'TEJA OPACA FIBRAFORTE',p:'tile',img:'https://www.image2url.com/r2/default/images/1790203781523-4e382507-7f8c-4ecf-9b84-939415f8aa99.jpg',f:[[.76,1.15,'#6a994e']]}];
+const S={t:null,F:null,sl:'ancho',ag:1,cs:3,rd:'real',mode:'med'},M={v:'t',t:null};
+function prof(p,c){let d='',x2='';
+  if(p==='wave'){for(let x=0;x<=80;x+=2)d+=(x?'L':'M')+x+' '+(16+8*Math.sin(x/80*Math.PI*6)).toFixed(1)}
+  else if(p==='tile'){d='M0 24';for(let i=0;i<4;i++){const x=i*20;d+='Q'+(x+8)+' 2 '+(x+16)+' 12L'+(x+20)+' 24'}}
+  else{d='M0 26';for(let i=0;i<4;i++){const x=i*20;d+='L'+(x+2)+' 26L'+(x+6)+' 8L'+(x+14)+' 8L'+(x+18)+' 26'}d+='L80 26';if(p==='trapI')x2='<path d="M0 32H80" stroke="#f6d27a" stroke-width="5"/>'}
+  return '<svg viewBox="0 0 80 36"><path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>'+x2+'</svg>'}
+const rend=F=>r6((F[0]-.1)*(F[1]-.2)),lab=F=>F[0].toFixed(2)+' × '+F[1].toFixed(2);
+const img=t=>'<img alt="" src="'+t.img+'" onerror="this.remove()">';
+/* ---- ventana emergente ---- */
+function openM(v){M.v=v;M.t=S.t;if(v==='t')M.t=null;if(v==='f'&&S.t===null)M.v='c';renderM();$('md').classList.remove('hidden')}
+function closeM(){$('md').classList.add('hidden')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+function renderM(){const b=$('mb');$('mback').classList.toggle('hidden',M.v==='t');
+  if(M.v==='t'){$('mt').textContent='Elegir techo';
+    b.innerHTML='<div class="tgrid">'+T.map((t,i)=>'<button type="button" class="tcard" onclick="mT('+i+')"><div class="th">'+prof(t.p,t.f[0][2])+img(t)+'</div><b>'+t.n+'</b></button>').join('')+'<button type="button" class="tcard oth" onclick="mC(null)"><div class="th plus">+</div><b>OTRO FORMATO</b></button></div>'}
+  else if(M.v==='f'){const t=T[M.t];$('mt').textContent=t.n;
+    b.innerHTML='<div class="flist">'+t.f.map((F,j)=>'<button type="button" class="frow" style="--c:'+F[2]+'" onclick="mF('+j+')"><i style="height:'+Math.max(10,Math.round(34*F[0]/F[1]))+'px"></i><span><b>'+lab(F)+'</b><small>rinde '+f2(rend(F))+' m²</small></span></button>').join('')+'<button type="button" class="frow oth" onclick="mC('+M.t+')"><span><b>+ Otro formato</b><small>Escribe las medidas</small></span></button></div>'}
+  else{$('mt').textContent=(M.t!==null?T[M.t].n+' · ':'')+'Otro formato';
+    b.innerHTML='<div class="cf"><div class="dims"><div class="fld"><label for="ca">Ancho</label><div class="iw"><input type="number" id="ca" step="0.01" min="0" inputmode="decimal" placeholder="0.00" oninput="cLive()"><span>m</span></div></div><div class="fld"><label for="cl">Largo</label><div class="iw"><input type="number" id="cl" step="0.01" min="0" inputmode="decimal" placeholder="0.00" oninput="cLive()"><span>m</span></div></div></div><div class="fx" id="cfx">Se resta 0.10 al ancho y 0.20 al largo.</div><button type="button" class="go" onclick="cUse()">Usar este formato</button></div>'}}
+function mT(i){if(T[i].f.length===1)setSel(i,T[i].f[0]);else{M.v='f';M.t=i;renderM()}}
+function mF(j){setSel(M.t,T[M.t].f[j])}
+function mC(t){M.v='c';M.t=t;renderM()}
+function cDims(){const x=+$('ca').value||0,y=+$('cl').value||0;return[Math.min(x,y),Math.max(x,y)]}
+function cLive(){const[a,l]=cDims();$('cfx').innerHTML=a>.1&&l>.2?'<span class="a">'+f2(a)+' − 0.10</span> × <span class="l">'+f2(l)+' − 0.20</span> = <b>'+f2(rend([a,l]))+' m²</b> por plancha':'Se resta 0.10 al ancho y 0.20 al largo.'}
+function cUse(){const[a,l]=cDims();if(!(a>.1&&l>.2)){$('cfx').textContent='Escribe ancho y largo (en metros).';return}setSel(M.t,[a,l,'#00897b'])}
+function setSel(t,F){S.t=t;S.F=F;closeM();
+  const tp=t!==null?T[t]:null;
+  $('pic').style.borderLeftColor=F[2];
+  $('pic').innerHTML=prof(tp?tp.p:'wave',F[2])+(tp?img(tp):'');
+  const bt=$('b-tipo');bt.classList.remove('go');bt.textContent=tp?tp.n:'OTRO FORMATO';
+  $('b-chg').classList.remove('hidden');
+  const bf=$('b-fmt');bf.classList.remove('hidden');bf.textContent=lab(F)+'  ·  rinde '+f2(rend(F))+' m²';
+  const tejas=tp&&(tp.n==='TEJA ANDINA ETERNIT'||tp.n==='TEJA OPACA FIBRAFORTE');
+  $('w-ag').classList.toggle('hidden',!tejas);
+  if(!tejas){S.ag=1;$('g-1').classList.add('on');$('g-2').classList.remove('on')}
+  calc()}
+$('pic').innerHTML=prof('wave','#b9b1d6');
+/* ---- controles ---- */
+function setMode(m){S.mode=m;$('m-med').classList.toggle('on',m==='med');$('m-m2').classList.toggle('on',m==='m2');
+  $('d-med').classList.toggle('hidden',m!=='med');$('d-m2').classList.toggle('hidden',m==='med');calc()}
+function setSl(v){S.sl=v;$('s-ancho').classList.toggle('on',v==='ancho');$('s-largo').classList.toggle('on',v==='largo');calc()}
+function setAg(n){S.ag=n;$('g-1').classList.toggle('on',n===1);$('g-2').classList.toggle('on',n===2);calc()}
+function setCs(n){S.cs=n;$('c3').classList.toggle('on',n===3);$('c6').classList.toggle('on',n===6);calc()}
+function setRd(v){S.rd=v;['up','down','real'].forEach(k=>$('r-'+k).classList.toggle('on',k===v));calc()}
+/* ---- nuevo cálculo: deja todo como recién abierto ---- */
+function nuevo(){
+  closeM();M.v='t';M.t=null;$('mb').innerHTML='';simReset();
+  ['a','l','m'].forEach(id=>{$(id).value=''});
+  S.t=null;S.F=null;S.sl='ancho';S.ag=1;S.cs=3;S.rd='real';S.mode='med';
+  const pic=$('pic');pic.style.borderLeftColor='';pic.innerHTML=prof('wave','#b9b1d6');
+  const bt=$('b-tipo');bt.classList.add('go');bt.textContent='Elegir techo ›';
+  $('b-chg').classList.add('hidden');
+  const bf=$('b-fmt');bf.classList.add('hidden');bf.textContent='';
+  $('w-ag').classList.add('hidden');
+  $('g-1').classList.add('on');$('g-2').classList.remove('on');
+  $('s-ancho').classList.add('on');$('s-largo').classList.remove('on');
+  $('c3').classList.add('on');$('c6').classList.remove('on');
+  ['real','up','down'].forEach(k=>$('r-'+k).classList.toggle('on',k==='real'));
+  $('m-med').classList.add('on');$('m-m2').classList.remove('on');
+  $('d-med').classList.remove('hidden');$('d-m2').classList.add('hidden');
+  calc();
+  window.scrollTo(0,0);
+  $('a').focus({preventScroll:true});
+}
+function calc(){
+  const A=+$('a').value||0,L=+$('l').value||0,Mm=+$('m').value||0,med=S.mode==='med';
+  const bad=med&&A>0&&L>0&&A>L;
+  $('wa').classList.toggle('err',bad);$('wl').classList.toggle('err',bad);$('bad').classList.toggle('hidden',!bad);
+  const F=S.F,ru=F?rend(F):0,area=med?r6(A*L):Mm;
+  $('fx').innerHTML=F?'<i class="sw" style="background:'+F[2]+'"></i><span class="a">'+f2(F[0])+' − 0.10</span> × <span class="l">'+f2(F[1])+' − 0.20</span> = <b>'+f2(ru)+' m²</b> por plancha':'Elige un techo.';
+  let dA=A,dL=L;if(!med){dA=Mm>0?Math.sqrt(Mm/1.5):0;dL=dA*1.5}
+  const ok=!bad&&area>0&&F,dok=!bad&&dA>0&&dL>0;
+  const rd=S.rd==='up'?x=>Math.ceil(r6(x)):S.rd==='down'?x=>Math.floor(r6(x)):x=>Math.round(x*100)/100;
+  const n=ok?rd(area/ru):0,c=ok?(S.rd==='down'?Math.max(1,rd(n/10)):rd(n/10)):0;
+  $('n').textContent=n;$('tor').textContent=c;$('cap').textContent=c;
+  let can=0,paq=0;
+  if(dok){const e=S.sl==='ancho'?dL:dA;can=rd(e*S.ag/S.cs);paq=rd(S.ag*(Math.ceil(r6(e/.5))+1)/6)}
+  const pre=!med&&dok?'~':'';
+  $('can').textContent=pre+can;$('abz').textContent=pre+paq;$('cu').textContent='de '+S.cs+' m';
+  draw(dA,dL,F,bad,!med)}
+function arrow(x1,y1,x2,y2,k){const d=Math.hypot(x2-x1,y2-y1),ux=(x2-x1)/d,uy=(y2-y1)/d,px=-uy,py=ux,s=k*.7;
+  return '<g stroke="#1e90d0" fill="#1e90d0" stroke-width="'+k*.25+'"><line x1="'+x1+'" y1="'+y1+'" x2="'+(x2-ux*s)+'" y2="'+(y2-uy*s)+'"/><polygon stroke="none" points="'+x2+','+y2+' '+(x2-ux*s+px*s*.55)+','+(y2-uy*s+py*s*.55)+' '+(x2-ux*s-px*s*.55)+','+(y2-uy*s-py*s*.55)+'"/></g>'}
+function draw(A,L,F,bad,asm){
+  const v=$('dv'),i=$('di');i.innerHTML='';
+  const em=t=>{v.innerHTML='<div class="empty">'+t+'</div>'};
+  if(bad)return em('Revisa las medidas:<br>el ancho debe ser menor o igual al largo.');
+  if(!(A>0&&L>0))return em(asm?'Escribe los m²<br>para ver cómo queda.':'Escribe el ancho y el largo<br>para ver cómo queda.');
+  if(!F)return em('Elige el techo<br>para ver cómo queda.');
+  const pa=F[0],pl=F[1],col=F[2],ea=r6(pa-.1),el=r6(pl-.2),vert=S.sl==='ancho',ag=S.ag,Sl=(vert?A:L)/ag,C=vert?L:A;
+  const nC=C<=pa+1e-9?1:1+Math.ceil(r6((C-pa)/ea)),nS=Sl<=pl+1e-9?1:1+Math.ceil(r6((Sl-pl)/el));
+  if(nC*nS*ag>1500)return em('El área es muy grande para dibujarla.');
+  const m=Math.max(L,A)*.1+.6,w=L+2*m,h=A+2*m,B=Math.max(w,h),fs=B/26,lw=B/400,g=B/55;
+  const reg=hf=>vert?{x:m,y:hf?m:m+A-A/ag,w:L,h:A/ag}:{x:hf?m+L/2:m,y:m,w:L/ag,h:A};
+  const rc=(id,r)=>'<clipPath id="'+id+'"><rect x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'"/></clipPath>';
+  let s='<svg viewBox="0 0 '+w+' '+h+'"><defs>'+rc('c0',reg(0))+(ag===2?rc('c1',reg(1)):'')+rc('cp',{x:m,y:m,w:L,h:A})+'<pattern id="pt" width="'+(vert?.16:1)+'" height="'+(vert?1:.16)+'" patternUnits="userSpaceOnUse"><path d="'+(vert?'M.08 0V1':'M0 .08H1')+'" stroke="#000" stroke-opacity=".22" stroke-width="'+lw*1.2+'"/></pattern></defs>';
+  s+='<rect x="'+m+'" y="'+m+'" width="'+L+'" height="'+A+'" fill="#fff"/>';
+  for(let hf=0;hf<ag;hf++){
+    s+='<g clip-path="url(#c'+hf+')">';let b='';
+    for(let j=0;j<nS;j++)for(let k=0;k<nC;k++){
+      const c0=k*ea,s0=j*el;let x,y,rw,rh;
+      if(vert){rw=pa;rh=pl;x=m+c0;y=hf?m+s0:m+A-s0-pl}else{rw=pl;rh=pa;y=m+c0;x=hf?m+L-s0-pl:m+s0}
+      s+='<rect x="'+x+'" y="'+y+'" width="'+rw+'" height="'+rh+'" fill="'+col+'" fill-opacity="'+((k+j)%2?.82:1)+'" stroke="#fff" stroke-width="'+lw*1.5+'"/>';
+      if(k>0)b+=vert?'<rect x="'+x+'" y="'+y+'" width=".1" height="'+rh+'" fill="#0097a7"/>':'<rect x="'+x+'" y="'+y+'" width="'+rw+'" height=".1" fill="#0097a7"/>';
+      if(j>0){if(vert)b+='<rect x="'+x+'" y="'+(hf?y:y+pl-.2)+'" width="'+rw+'" height=".2" fill="#f07f0a"/>';else b+='<rect x="'+(hf?x+pl-.2:x)+'" y="'+y+'" width=".2" height="'+rh+'" fill="#f07f0a"/>'}}
+    s+=b+'</g>'}
+  s+='<g clip-path="url(#cp)"><rect x="'+m+'" y="'+m+'" width="'+L+'" height="'+A+'" fill="url(#pt)"/></g>';
+  if(ag===2)s+=vert?'<line x1="'+m+'" y1="'+(m+A/2)+'" x2="'+(m+L)+'" y2="'+(m+A/2)+'" stroke="#5d4037" stroke-width="'+lw*5+'"/>':'<line x1="'+(m+L/2)+'" y1="'+m+'" x2="'+(m+L/2)+'" y2="'+(m+A)+'" stroke="#5d4037" stroke-width="'+lw*5+'"/>';
+  s+='<rect x="'+m+'" y="'+m+'" width="'+L+'" height="'+A+'" fill="none" stroke="#4a545c" stroke-width="'+lw*3+'"/>';
+  /* canaletas y abrazaderas al final de cada caída */
+  const len=vert?L:A,gs=[];
+  if(vert){gs.push([m,m+A]);if(ag===2)gs.push([m,m-g])}else{gs.push([m,m-g]);if(ag===2)gs.push([m,m+L])}
+  gs.forEach(q=>{const bx=vert?q[0]:q[1],by=vert?q[1]:q[0];
+    s+='<rect x="'+bx+'" y="'+by+'" width="'+(vert?len:g)+'" height="'+(vert?g:len)+'" fill="#78909c" stroke="#fff" stroke-width="'+lw+'"/>';
+    for(let p=S.cs;p<len-1e-6;p+=S.cs)s+=vert?'<line x1="'+(bx+p)+'" y1="'+by+'" x2="'+(bx+p)+'" y2="'+(by+g)+'" stroke="#fff" stroke-width="'+lw*2+'"/>':'<line x1="'+bx+'" y1="'+(by+p)+'" x2="'+(bx+g)+'" y2="'+(by+p)+'" stroke="#fff" stroke-width="'+lw*2+'"/>';
+    const nA=Math.ceil(r6(len/.5));
+    for(let a=0;a<=nA;a++){const p=Math.min(a*.5,len);s+='<circle cx="'+(vert?bx+p:bx+g/2)+'" cy="'+(vert?by+g/2:by+p)+'" r="'+g*.3+'" fill="#263238"/>'}});
+  s+='<text x="'+(m+L/2)+'" y="'+(m+A+m*.8)+'" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="currentColor">'+(asm?'~':'')+f2(L)+' m</text>';
+  s+='<text transform="translate('+m*.4+' '+(m+A/2)+') rotate(-90)" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="currentColor">'+(asm?'~':'')+f2(A)+' m</text>';
+  const wt=(x,y,r)=>'<text '+(r?'transform="translate('+x+' '+y+') rotate(-90)"':'x="'+x+'" y="'+y+'"')+' font-size="'+fs*.7+'" font-weight="800" fill="#1e90d0" text-anchor="middle">agua</text>';
+  if(vert){const x=m+L+m*.5;
+    if(ag===1)s+=arrow(x,m+A*.3,x,m+A*.7,fs)+wt(x+fs*1.1,m+A*.5,1);
+    else s+=arrow(x,m+A*.4,x,m+A*.12,fs)+arrow(x,m+A*.6,x,m+A*.88,fs)+wt(x+fs*1.1,m+A*.5,1)}
+  else{const y=m*.45;
+    if(ag===1)s+=arrow(m+L*.7,y,m+L*.3,y,fs)+wt(m+L*.5,y-fs*.5,0);
+    else s+=arrow(m+L*.4,y,m+L*.12,y,fs)+arrow(m+L*.6,y,m+L*.88,y,fs)+wt(m+L*.5,y-fs*.5,0)}
+  v.innerHTML=s+'</svg>';
+  i.innerHTML=(asm?'<span class="chip">Forma supuesta</span>':'')+'<span class="chip">Dibujo: '+nC+' × '+nS+(ag===2?' × 2':'')+' = '+nC*nS*ag+'</span><span class="lg"><i style="background:#0097a7"></i>10 cm</span><span class="lg"><i style="background:#f07f0a"></i>20 cm</span><span class="lg"><i style="background:#78909c"></i>canaleta</span>'}
+/* ---- simulador plegable: se carga al desplegar y se reinicia con «Nuevo cálculo» ---- */
+let simOn=false;
+const simDoc=()=>'<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet"></head><body>'+$('simT').innerHTML+'</body></html>';
+$('como').addEventListener('toggle',()=>{if($('como').open&&!simOn){simOn=true;$('simfr').srcdoc=simDoc()}});
+function simReset(){const c=$('como'),f=$('simfr');c.open=false;simOn=false;f.removeAttribute('srcdoc');f.style.height=''}
+addEventListener('message',e=>{if(e.source!==$('simfr').contentWindow)return;const d=e.data||{};
+  if(d.sim==='h'&&d.h>200)$('simfr').style.height=Math.ceil(d.h)+'px';
+  else if(d.sim==='step')$('simfr').scrollIntoView({behavior:'smooth',block:'start'});
+  else if(d.sim==='close'){$('como').open=false;$('como-s').scrollIntoView({behavior:'smooth',block:'center'})}});
+calc();
+</script>
+</body>
+</html>
